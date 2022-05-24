@@ -1,12 +1,12 @@
 #!/bin/sh
 export LANG=en_US.UTF-8
 
-mkdir -p /etc/hysteria
+mkdir -p /etc/admirer
 version=`wget -qO- -t1 -T2 --no-check-certificate "https://api.github.com/repos/HyNetwork/hysteria/releases/latest" | grep "tag_name" | head -n 1 | awk -F ":" '{print $2}' | sed 's/\"//g;s/,//g;s/ //g'`
 
-wget -q -O /etc/hysteria/hysteria --no-check-certificate https://github.com/HyNetwork/hysteria/releases/download/$version/hysteria-linux-amd64
+wget -q -O /etc/admirer/hysteria --no-check-certificate https://github.com/HyNetwork/hysteria/releases/download/$version/hysteria-linux-amd64
 
-chmod 755 /etc/hysteria/hysteria
+chmod 755 /etc/admirer/hysteria
 
 delay=200
 ip=`curl -4 -s ip.sb`
@@ -31,24 +31,24 @@ mail="admin@qq.com"
 days=36500
 
 echo -e "\033[1;;35mSIGN...\n \033[0m"
-openssl genrsa -out /etc/hysteria/$domain.ca.key 2048
+openssl genrsa -out /etc/admirer/$domain.ca.key 2048
 
-openssl req -new -x509 -days $days -key /etc/hysteria/$domain.ca.key -subj "/C=CN/ST=GuangDong/L=ShenZhen/O=PonyMa/OU=Tecent/emailAddress=$mail/CN=Tencent Root CA" -out /etc/hysteria/$domain.ca.crt
+openssl req -new -x509 -days $days -key /etc/admirer/$domain.ca.key -subj "/C=CN/ST=GuangDong/L=ShenZhen/O=PonyMa/OU=Tecent/emailAddress=$mail/CN=Tencent Root CA" -out /etc/admirer/$domain.ca.crt
 
-openssl req -newkey rsa:2048 -nodes -keyout /etc/hysteria/$domain.key -subj "/C=CN/ST=GuangDong/L=ShenZhen/O=PonyMa/OU=Tecent/emailAddress=$mail/CN=Tencent Root CA" -out /etc/hysteria/$domain.csr
+openssl req -newkey rsa:2048 -nodes -keyout /etc/admirer/$domain.key -subj "/C=CN/ST=GuangDong/L=ShenZhen/O=PonyMa/OU=Tecent/emailAddress=$mail/CN=Tencent Root CA" -out /etc/admirer/$domain.csr
 
-openssl x509 -req -extfile <(printf "subjectAltName=DNS:$domain,DNS:$domain") -days $days -in /etc/hysteria/$domain.csr -CA /etc/hysteria/$domain.ca.crt -CAkey /etc/hysteria/$domain.ca.key -CAcreateserial -out /etc/hysteria/$domain.crt
+openssl x509 -req -extfile <(printf "subjectAltName=DNS:$domain,DNS:$domain") -days $days -in /etc/admirer/$domain.csr -CA /etc/admirer/$domain.ca.crt -CAkey /etc/admirer/$domain.ca.key -CAcreateserial -out /etc/admirer/$domain.crt
 
-rm /etc/hysteria/${domain}.ca.key /etc/hysteria/${domain}.ca.srl /etc/hysteria/${domain}.csr
+rm /etc/admirer/${domain}.ca.key /etc/admirer/${domain}.ca.srl /etc/admirer/${domain}.csr
 echo -e "\033[1;;35mOK.\n \033[0m"
 
-cat <<EOF > /etc/hysteria/config.json
+cat <<EOF > /etc/admirer/config.json
 {
   "listen": ":$port",
   "protocol": "$protocol",
   "disable_udp": false,
-  "cert": "/etc/hysteria/$domain.crt",
-  "key": "/etc/hysteria/$domain.key",
+  "cert": "/etc/admirer/$domain.crt",
+  "key": "/etc/admirer/$domain.key",
   "auth": {
     "mode": "password",
     "config": {
@@ -100,7 +100,7 @@ EOF
 else
 iptables -I INPUT -p tcp --dport 80  -m comment --comment "allow tcp(hihysteria)" -j ACCEPT
 iptables -I INPUT -p tcp --dport 443  -m comment --comment "allow tcp(hihysteria)" -j ACCEPT
-cat <<EOF > /etc/hysteria/config.json
+cat <<EOF > /etc/admirer/config.json
 {
   "listen": ":$port",
   "protocol": "$protocol",
@@ -168,7 +168,7 @@ After=network.target
 [Service]
 Type=simple
 PIDFile=/run/hysteria.pid
-ExecStart=/etc/hysteria/hysteria --log-level warn -c /etc/hysteria/config.json server
+ExecStart=/etc/admirer/hysteria --log-level warn -c /etc/admirer/config.json server
 #Restart=on-failure
 #RestartSec=10s
 [Install]
